@@ -1,4 +1,4 @@
-package com.example.demo.models.Lineas;
+package com.example.demo.models.lineas;
 
 import java.math.BigDecimal;
 
@@ -6,9 +6,8 @@ import javax.persistence.*;
 
 import com.example.demo.models.Producto;
 import com.example.demo.models.ServicioMedico;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
-@Entity
+@MappedSuperclass
 public class LineDocTransaccion {
 
     @Id
@@ -22,12 +21,6 @@ public class LineDocTransaccion {
     private Producto producto;
 
     private Integer cantidad;
-
-    // 🔗 Relación con DocumentoTransaccion
-    @ManyToOne
-    @JsonBackReference
-    @JoinColumn(name = "documento_id") // debe coincidir con el join en DocumentoTransaccion
-    private DocumentoTransaccion documento;
 
     // Método robusto para calcular subtotal incluso si producto o servicio son null
     public BigDecimal getSubtotal() {
@@ -43,8 +36,6 @@ public class LineDocTransaccion {
 
         return total;
     }
-
-    // Getters y Setters
 
     public Integer getId() {
         return id;
@@ -78,11 +69,4 @@ public class LineDocTransaccion {
         this.cantidad = cantidad;
     }
 
-    public DocumentoTransaccion getDocumento() {
-        return documento;
-    }
-
-    public void setDocumento(DocumentoTransaccion documento) {
-        this.documento = documento;
-    }
 }

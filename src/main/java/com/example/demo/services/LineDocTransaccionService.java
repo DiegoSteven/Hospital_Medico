@@ -3,15 +3,17 @@ package com.example.demo.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.DTO.DocumentoTransaccionDTO;
 import com.DTO.LineDocTransaccionDTO;
+import com.example.demo.models.Descargo;
 import com.example.demo.models.Producto;
 import com.example.demo.models.ServicioMedico;
-import com.example.demo.models.Lineas.DocumentoTransaccion;
-import com.example.demo.models.Lineas.LineDocTransaccion;
+import com.example.demo.models.lineas.DocumentoTransaccion;
+import com.example.demo.models.lineas.LineDocTransaccion;
+import com.example.demo.models.lineas.LineaDescargo;
+import com.example.demo.repositories.DescargoRepository;
 import com.example.demo.repositories.DocumentoTransaccionRepository;
 import com.example.demo.repositories.LineDocTransaccionRepository;
 import com.example.demo.repositories.ProductoRepository;
@@ -20,25 +22,38 @@ import com.example.demo.repositories.ServicioMedicoRepository;
 @Service
 public class LineDocTransaccionService {
 
-    @Autowired
-    private LineDocTransaccionRepository lineaRepository;
+    private final LineDocTransaccionRepository lineaRepository;
+    private final ServicioMedicoRepository servicioRepository;
+    private final ProductoRepository productoRepository;
+    private final DocumentoTransaccionRepository documentoRepository;
+    private final DescargoRepository descargoRepository;
 
-    @Autowired
-    private ServicioMedicoRepository servicioRepository;
-
-    @Autowired
-    private ProductoRepository productoRepository;
-
-    @Autowired
-    private DocumentoTransaccionRepository documentoRepository;
+    public LineDocTransaccionService(
+            LineDocTransaccionRepository lineaRepository,
+            ServicioMedicoRepository servicioRepository,
+            ProductoRepository productoRepository,
+            DocumentoTransaccionRepository documentoRepository,
+            DescargoRepository descargoRepository) {
+        this.lineaRepository = lineaRepository;
+        this.servicioRepository = servicioRepository;
+        this.productoRepository = productoRepository;
+        this.documentoRepository = documentoRepository;
+        this.descargoRepository = descargoRepository;
+    }
 
     // ✅ Guardar UNA sola línea desde DTO
     public LineDocTransaccion guardarDesdeDTO(LineDocTransaccionDTO dto) {
-        ServicioMedico servicio = servicioRepository.findById(dto.getServicioId())
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+        ServicioMedico servicio = null;
+        if (dto.getServicioId() != null) {
+            servicio = servicioRepository.findById(dto.getServicioId())
+                    .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+        }
 
-        Producto producto = productoRepository.findById(dto.getProductoId())
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        Producto producto = null;
+        if (dto.getProductoId() != null) {
+            producto = productoRepository.findById(dto.getProductoId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        }
 
         LineDocTransaccion linea = new LineDocTransaccion();
         linea.setServicio(servicio);
@@ -48,40 +63,44 @@ public class LineDocTransaccionService {
         return lineaRepository.save(linea);
     }
 
-    // ✅ Guardar un DOCUMENTO completo con varias líneas
-    public DocumentoTransaccion guardarDocumentoDesdeDTO(DocumentoTransaccionDTO dto) {
-        DocumentoTransaccion doc = new DocumentoTransaccion();
-        doc.setFecha(dto.getFecha());
+    public Descargo guardarDescargoDesdeDTO(DocumentoTransaccionDTO dto) {
+        Descargo descargo = new Descargo();
+        descargo.setFecha(dto.getFecha());
+        descargo.setMotivo(dto.getMotivo());
+        descargo.setResponsable(dto.getResponsable());
+        descargo.setEstado(dto.getEstado());
 
-        List<LineDocTransaccion> lineas = new ArrayList<>();
+        List<LineaDescargo> lineas = new ArrayList<>();
 
         for (LineDocTransaccionDTO lineaDto : dto.getLineas()) {
-            // Buscar el servicio si viene el ID
-            ServicioMedico servicio = null;
-            if (lineaDto.getServicioId() != null) {
-                servicio = servicioRepository.findById(lineaDto.getServicioId())
-                        .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+            if (lineaDto.getProductoId() == null && lineaDto.getServicioId() == null) {
+                throw new RuntimeException("Cada línea debe contener al menos productoId o servicioId");
             }
 
-            // Buscar el producto si viene el ID
-            Producto producto = null;
+            LineaDescargo linea = new LineaDescargo();
+
             if (lineaDto.getProductoId() != null) {
-                producto = productoRepository.findById(lineaDto.getProductoId())
-                        .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                Producto producto = productoRepository.findById(lineaDto.getProductoId())
+                        .orElseThrow(() -> new RuntimeException(
+                                "Producto no encontrado con ID: " + lineaDto.getProductoId()));
+                linea.setProducto(producto);
             }
 
-            LineDocTransaccion linea = new LineDocTransaccion();
-            linea.setServicio(servicio);
-            linea.setProducto(producto);
-            linea.setCantidad(lineaDto.getCantidad());
-            linea.setDocumento(doc); // ✅ Relación inversa obligatoria
+            if (lineaDto.getServicioId() != null) {
+                ServicioMedico servicio = servicioRepository.findById(lineaDto.getServicioId())
+                        .orElseThrow(() -> new RuntimeException(
+                                "Servicio no encontrado con ID: " + lineaDto.getServicioId()));
+                linea.setServicio(servicio);
+            }
+
+            linea.setCantidad(lineaDto.getCantidad() != null ? lineaDto.getCantidad() : 1);
+            linea.setDescargo(descargo);
 
             lineas.add(linea);
         }
 
-        doc.setLineas(lineas);
-
-        return documentoRepository.save(doc);
+        descargo.setLineasDescargo(lineas);
+        return descargoRepository.save(descargo);
     }
 
     // Métodos auxiliares
