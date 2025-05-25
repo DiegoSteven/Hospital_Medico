@@ -18,8 +18,8 @@ public class LineaDescargo {
     private LineDocTransaccion lineDocTransaccion;
 
     @ManyToOne
-    @JoinColumn(name = "descargo_id")
-    private Descargo descargo;
+@JsonBackReference
+private Descargo descargo;
 
     public LineDocTransaccion getLineDocTransaccion() {
         return lineDocTransaccion;

@@ -32,8 +32,9 @@ public class Factura extends DocumentoContable {
     @JsonManagedReference
     private Descargo descargo;
 
-    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL)
-    private List<LineaFactura> lineasFactura= new ArrayList<>();
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+@JsonManagedReference
+private List<LineaFactura> lineasFactura;
 
     public Descargo getDescargo() {
         return descargo;

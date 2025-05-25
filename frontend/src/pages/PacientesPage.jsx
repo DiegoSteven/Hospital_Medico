@@ -21,8 +21,6 @@ import {
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 import { pacienteService } from '../services/api';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 
 const PacientesPage = () => {
   const [pacientes, setPacientes] = useState([]);
@@ -32,11 +30,9 @@ const PacientesPage = () => {
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [formData, setFormData] = useState({
     nombre: '',
-    apellido: '',
-    cedula: '',
-    fecha_nacimiento: '',
     direccion: '',
     telefono: '',
+    correo: ''
   });
 
   useEffect(() => {
@@ -46,12 +42,14 @@ const PacientesPage = () => {
   const loadPacientes = async () => {
     try {
       setLoading(true);
-      const response = await pacienteService.getAll();
-      setPacientes(response.data);
+      const data = await pacienteService.getAll();
+      console.log("📦 Pacientes recibidos:", data);
+      setPacientes(Array.isArray(data) ? data : []);
       setError(null);
     } catch (err) {
       setError('Error al cargar los pacientes');
       console.error(err);
+      setPacientes([]);
     } finally {
       setLoading(false);
     }
@@ -61,22 +59,18 @@ const PacientesPage = () => {
     if (paciente) {
       setSelectedPaciente(paciente);
       setFormData({
-        nombre: paciente.nombre,
-        apellido: paciente.apellido,
-        cedula: paciente.cedula,
-        fecha_nacimiento: paciente.fecha_nacimiento ? format(new Date(paciente.fecha_nacimiento), 'yyyy-MM-dd') : '',
+        nombre: paciente.nombre || '',
         direccion: paciente.direccion || '',
         telefono: paciente.telefono || '',
+        correo: paciente.correo || ''
       });
     } else {
       setSelectedPaciente(null);
       setFormData({
         nombre: '',
-        apellido: '',
-        cedula: '',
-        fecha_nacimiento: '',
         direccion: '',
         telefono: '',
+        correo: ''
       });
     }
     setOpenDialog(true);
@@ -87,11 +81,9 @@ const PacientesPage = () => {
     setSelectedPaciente(null);
     setFormData({
       nombre: '',
-      apellido: '',
-      cedula: '',
-      fecha_nacimiento: '',
       direccion: '',
       telefono: '',
+      correo: ''
     });
   };
 
@@ -156,51 +148,47 @@ const PacientesPage = () => {
           <TableHead>
             <TableRow>
               <TableCell>Nombre</TableCell>
-              <TableCell>Apellido</TableCell>
-              <TableCell>Cédula</TableCell>
-              <TableCell>Fecha de Nacimiento</TableCell>
               <TableCell>Dirección</TableCell>
               <TableCell>Teléfono</TableCell>
+              <TableCell>Correo</TableCell>
+              <TableCell>Estado</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {pacientes.map((paciente) => (
-              <TableRow key={paciente.id}>
-                <TableCell>{paciente.nombre}</TableCell>
-                <TableCell>{paciente.apellido}</TableCell>
-                <TableCell>{paciente.cedula}</TableCell>
-                <TableCell>
-                  {paciente.fecha_nacimiento
-                    ? format(new Date(paciente.fecha_nacimiento), 'dd/MM/yyyy', { locale: es })
-                    : '-'}
-                </TableCell>
-                <TableCell>{paciente.direccion || '-'}</TableCell>
-                <TableCell>{paciente.telefono || '-'}</TableCell>
-                <TableCell>
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleOpenDialog(paciente)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(paciente.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
+            {!Array.isArray(pacientes) ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">Error: pacientes no válidos</TableCell>
               </TableRow>
-            ))}
+            ) : pacientes.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">No hay pacientes registrados</TableCell>
+              </TableRow>
+            ) : (
+              pacientes.map((paciente) => (
+                <TableRow key={paciente.id}>
+                  <TableCell>{paciente.nombre}</TableCell>
+                  <TableCell>{paciente.direccion}</TableCell>
+                  <TableCell>{paciente.telefono}</TableCell>
+                  <TableCell>{paciente.correo}</TableCell>
+                  <TableCell>{paciente.estado?.estadoNombre || '-'}</TableCell>
+                  <TableCell>
+                    <IconButton color="primary" onClick={() => handleOpenDialog(paciente)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton color="error" onClick={() => handleDelete(paciente.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {selectedPaciente ? 'Editar Paciente' : 'Nuevo Paciente'}
-        </DialogTitle>
+        <DialogTitle>{selectedPaciente ? 'Editar Paciente' : 'Nuevo Paciente'}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
             <Box display="flex" flexDirection="column" gap={2}>
@@ -209,28 +197,6 @@ const PacientesPage = () => {
                 value={formData.nombre}
                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                 required
-                fullWidth
-              />
-              <TextField
-                label="Apellido"
-                value={formData.apellido}
-                onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
-                required
-                fullWidth
-              />
-              <TextField
-                label="Cédula"
-                value={formData.cedula}
-                onChange={(e) => setFormData({ ...formData, cedula: e.target.value })}
-                required
-                fullWidth
-              />
-              <TextField
-                label="Fecha de Nacimiento"
-                type="date"
-                value={formData.fecha_nacimiento}
-                onChange={(e) => setFormData({ ...formData, fecha_nacimiento: e.target.value })}
-                InputLabelProps={{ shrink: true }}
                 fullWidth
               />
               <TextField
@@ -243,6 +209,12 @@ const PacientesPage = () => {
                 label="Teléfono"
                 value={formData.telefono}
                 onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                fullWidth
+              />
+              <TextField
+                label="Correo"
+                value={formData.correo}
+                onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
                 fullWidth
               />
             </Box>
@@ -259,4 +231,4 @@ const PacientesPage = () => {
   );
 };
 
-export default PacientesPage; 
+export default PacientesPage;

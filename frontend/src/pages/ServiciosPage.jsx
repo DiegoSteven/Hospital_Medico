@@ -29,7 +29,7 @@ const ServiciosPage = () => {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     descripcion: '',
-    precio: '',
+    costo: '',
     tipo: '',
     duracion: '',
     medico: '',
@@ -77,7 +77,7 @@ const ServiciosPage = () => {
     setOpen(false);
     setFormData({
       descripcion: '',
-      precio: '',
+      costo: '',
       tipo: '',
       duracion: '',
       medico: '',
@@ -105,7 +105,7 @@ const ServiciosPage = () => {
   };
 
   const validarFormulario = () => {
-    if (!formData.descripcion || !formData.precio || !formData.tipo) {
+    if (!formData.descripcion || !formData.costo || !formData.tipo) {
       setError('Por favor complete todos los campos requeridos');
       return false;
     }
@@ -153,7 +153,7 @@ const ServiciosPage = () => {
     try {
       const dataToSend = {
         ...formData,
-        precio: parseFloat(formData.precio),
+        costo: parseFloat(formData.costo),
         duracion: formData.duracion ? parseInt(formData.duracion) : undefined,
         cantidad: formData.cantidad ? parseInt(formData.cantidad) : undefined
       };
@@ -368,25 +368,25 @@ const ServiciosPage = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Descripción</TableCell>
               <TableCell>Tipo</TableCell>
-              <TableCell>Precio</TableCell>
+              <TableCell>Descripción</TableCell>
+              <TableCell>Fecha</TableCell>
+              <TableCell>Costo</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {servicios.map((servicio) => (
               <TableRow key={servicio.id}>
-                <TableCell>{servicio.id}</TableCell>
+                <TableCell>{servicio.tipoServicio}</TableCell>
                 <TableCell>{servicio.descripcion}</TableCell>
-                <TableCell>{servicio.tipo}</TableCell>
-                <TableCell>${servicio.precio}</TableCell>
+                <TableCell>{servicio.fecha}</TableCell>
+                <TableCell>${servicio.costo}</TableCell>
                 <TableCell>
-                  <IconButton color="primary">
+                  <IconButton color="primary" onClick={() => alert('Editar no implementado')}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton color="error">
+                  <IconButton color="error" onClick={() => alert('Eliminar no implementado')}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -398,58 +398,60 @@ const ServiciosPage = () => {
 
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>Nuevo Servicio</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                name="descripcion"
-                label="Descripción"
-                value={formData.descripcion}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
+        <form onSubmit={handleSubmit}>
+          <DialogContent>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={12}>
+                <TextField
+                  name="descripcion"
+                  label="Descripción"
+                  value={formData.descripcion}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="costo"
+                  label="Costo"
+                  type="number"
+                  value={formData.costo}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="tipo"
+                  label="Tipo de Servicio"
+                  select
+                  value={formData.tipo}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                >
+                  {tiposServicio.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              {renderCamposEspecificos()}
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="precio"
-                label="Precio"
-                type="number"
-                value={formData.precio}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="tipo"
-                label="Tipo de Servicio"
-                select
-                value={formData.tipo}
-                onChange={handleChange}
-                fullWidth
-                required
-              >
-                {tiposServicio.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            {renderCamposEspecificos()}
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">
-            Guardar
-          </Button>
-        </DialogActions>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancelar</Button>
+            <Button type="submit" variant="contained" color="primary">
+              Guardar
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </Container>
   );
 };
 
-export default ServiciosPage; 
+export default ServiciosPage;

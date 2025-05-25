@@ -27,8 +27,9 @@ public class LineaFactura {
     private LineDocTransaccion lineDocTransaccion;
 
     @ManyToOne
-    @JoinColumn(name = "factura_id")
-    private Factura factura;
+@JsonBackReference
+private Factura factura;
+
 
     private BigDecimal precioUnitario;
 

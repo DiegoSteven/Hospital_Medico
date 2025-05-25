@@ -7,6 +7,7 @@ import com.example.demo.models.lineas.DocumentoTransaccion;
 import com.example.demo.models.lineas.LineaDescargo;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,8 +25,9 @@ public class Descargo extends DocumentoTransaccion {
     @Enumerated(EnumType.STRING)
     private EstadoDocumento estado;
 
-    @OneToMany(mappedBy = "descargo", cascade = CascadeType.ALL)
-    private List<LineaDescargo> lineasDescargo = new ArrayList<>();
+ @OneToMany(mappedBy = "descargo", cascade = CascadeType.ALL, orphanRemoval = true)
+@JsonManagedReference
+private List<LineaDescargo> lineasDescargo;
 
     @OneToOne(mappedBy = "descargo")
     @JsonIgnore

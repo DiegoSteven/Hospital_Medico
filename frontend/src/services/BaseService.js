@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'http://localhost:8080';
 
 export class BaseService {
   constructor(endpoint) {
@@ -24,22 +24,27 @@ export class BaseService {
   }
 
   async getAll() {
-    return this.api.get(`/api/${this.endpoint}`);
+    const res = await this.api.get(`/api/${this.endpoint}`);
+    return res.data;
   }
 
   async getById(id) {
-    return this.api.get(`/api/${this.endpoint}/${id}`);
+    const res = await this.api.get(`/api/${this.endpoint}/${id}`);
+    return res.data;
   }
 
   async create(data) {
-    return this.api.post(`/api/${this.endpoint}`, data);
+    const res = await this.api.post(`/api/${this.endpoint}`, data);
+    return res.data;
   }
 
   async update(id, data) {
-    return this.api.put(`/api/${this.endpoint}/${id}`, data);
+    const res = await this.api.put(`/api/${this.endpoint}/${id}`, data);
+    return res.data;
   }
 
   async delete(id) {
-    return this.api.delete(`/api/${this.endpoint}/${id}`);
+    const res = await this.api.delete(`/api/${this.endpoint}/${id}`);
+    return res.data;
   }
-} 
+}

@@ -7,7 +7,7 @@ import javax.persistence.*;
 import com.example.demo.models.Producto;
 import com.example.demo.models.ServicioMedico;
 
-@MappedSuperclass
+@Entity
 public class LineDocTransaccion {
 
     @Id
