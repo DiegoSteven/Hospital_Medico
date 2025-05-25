@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,7 +25,7 @@ public class Descargo extends DocumentoTransaccion {
     private EstadoDocumento estado;
 
     @OneToMany(mappedBy = "descargo", cascade = CascadeType.ALL)
-    private List<LineaDescargo> lineasDescargo;
+    private List<LineaDescargo> lineasDescargo = new ArrayList<>();
 
     @OneToOne(mappedBy = "descargo")
     @JsonIgnore

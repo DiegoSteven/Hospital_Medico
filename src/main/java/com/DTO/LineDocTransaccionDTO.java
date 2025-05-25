@@ -1,5 +1,7 @@
 package com.DTO;
 
+import java.math.BigDecimal;
+
 public class LineDocTransaccionDTO {
     private Integer servicioId;
     private Integer productoId;
@@ -29,4 +31,15 @@ public class LineDocTransaccionDTO {
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
     }
+
+    private BigDecimal precioUnitario;
+
+    public BigDecimal getPrecioUnitario() {
+        return precioUnitario;
+    }
+
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
+        this.precioUnitario = precioUnitario;
+    }
+
 }

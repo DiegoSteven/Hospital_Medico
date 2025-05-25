@@ -22,6 +22,16 @@ public class LineDocTransaccion {
 
     private Integer cantidad;
 
+    private BigDecimal precioUnitario;
+
+    public BigDecimal getPrecioUnitario() {
+        return precioUnitario;
+    }
+
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
+        this.precioUnitario = precioUnitario;
+    }
+
     // Método robusto para calcular subtotal incluso si producto o servicio son null
     public BigDecimal getSubtotal() {
         BigDecimal total = BigDecimal.ZERO;

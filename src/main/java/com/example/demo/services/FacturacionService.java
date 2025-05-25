@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.models.Descargo;
 import com.example.demo.models.Factura;
 import com.example.demo.models.estados.EstadoDocumento;
+import com.example.demo.models.lineas.LineDocTransaccion;
 import com.example.demo.models.lineas.LineaFactura;
 import com.example.demo.repositories.DescargoRepository;
 import com.example.demo.repositories.FacturaRepository;
@@ -62,16 +63,25 @@ public class FacturacionService {
     }
 
     private List<LineaFactura> clonarLineas(Descargo descargo, Factura factura) {
-        return descargo.getLineasDescargo().stream().map(linea -> {
-            LineaFactura lf = new LineaFactura();
-            lf.setProducto(linea.getProducto());
-            lf.setServicio(linea.getServicio());
-            lf.setCantidad(linea.getCantidad());
-            lf.setPrecioUnitario(linea.getSubtotal());
-            lf.setFactura(factura);
-            return lf;
-        }).collect(Collectors.toList());
-    }
+    return descargo.getLineasDescargo().stream().map(linea -> {
+        LineaFactura lf = new LineaFactura();
+
+        // Reutiliza el LineDocTransaccion de la línea de descargo
+        LineDocTransaccion original = linea.getLineDocTransaccion();
+
+        LineDocTransaccion ldt = new LineDocTransaccion();
+        ldt.setProducto(original.getProducto());
+        ldt.setServicio(original.getServicio());
+        ldt.setCantidad(original.getCantidad());
+        ldt.setPrecioUnitario(original.getSubtotal());
+
+        lf.setLineDocTransaccion(ldt);
+        lf.setFactura(factura);
+
+        return lf;
+    }).collect(Collectors.toList());
+}
+
 
     public List<Factura> listarFacturas() {
         return facturaRepository.findAll();

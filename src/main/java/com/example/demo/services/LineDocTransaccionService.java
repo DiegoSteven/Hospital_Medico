@@ -77,23 +77,33 @@ public class LineDocTransaccionService {
                 throw new RuntimeException("Cada línea debe contener al menos productoId o servicioId");
             }
 
-            LineaDescargo linea = new LineaDescargo();
+            // Crear transacción base
+            LineDocTransaccion lineDoc = new LineDocTransaccion();
 
             if (lineaDto.getProductoId() != null) {
                 Producto producto = productoRepository.findById(lineaDto.getProductoId())
-                        .orElseThrow(() -> new RuntimeException(
-                                "Producto no encontrado con ID: " + lineaDto.getProductoId()));
-                linea.setProducto(producto);
+                        .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + lineaDto.getProductoId()));
+                lineDoc.setProducto(producto);
             }
 
             if (lineaDto.getServicioId() != null) {
                 ServicioMedico servicio = servicioRepository.findById(lineaDto.getServicioId())
-                        .orElseThrow(() -> new RuntimeException(
-                                "Servicio no encontrado con ID: " + lineaDto.getServicioId()));
-                linea.setServicio(servicio);
+                        .orElseThrow(() -> new RuntimeException("Servicio no encontrado con ID: " + lineaDto.getServicioId()));
+                lineDoc.setServicio(servicio);
             }
 
-            linea.setCantidad(lineaDto.getCantidad() != null ? lineaDto.getCantidad() : 1);
+            lineDoc.setCantidad(lineaDto.getCantidad() != null ? lineaDto.getCantidad() : 1);
+            lineDoc.setPrecioUnitario(lineaDto.getPrecioUnitario() != null
+                    ? lineaDto.getPrecioUnitario()
+                    : (lineDoc.getServicio() != null
+                        ? lineDoc.getServicio().getCosto()
+                        : lineDoc.getProducto().getPrecio()));
+
+            lineDoc = lineaRepository.save(lineDoc);
+
+            // Componer la línea con la transacción
+            LineaDescargo linea = new LineaDescargo();
+            linea.setLineDocTransaccion(lineDoc);
             linea.setDescargo(descargo);
 
             lineas.add(linea);
@@ -102,7 +112,8 @@ public class LineDocTransaccionService {
         descargo.setLineasDescargo(lineas);
         return descargoRepository.save(descargo);
     }
-
+    
+    
     // Métodos auxiliares
     public List<LineDocTransaccion> listar() {
         return lineaRepository.findAll();

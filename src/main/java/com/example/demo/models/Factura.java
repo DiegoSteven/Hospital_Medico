@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,7 +33,7 @@ public class Factura extends DocumentoContable {
     private Descargo descargo;
 
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL)
-    private List<LineaFactura> lineasFactura;
+    private List<LineaFactura> lineasFactura= new ArrayList<>();
 
     public Descargo getDescargo() {
         return descargo;
