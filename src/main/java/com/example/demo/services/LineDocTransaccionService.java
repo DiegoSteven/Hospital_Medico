@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.DTO.DocumentoTransaccionDTO;
 import com.DTO.LineDocTransaccionDTO;
 import com.example.demo.models.Descargo;
+import com.example.demo.models.Paciente;
 import com.example.demo.models.Producto;
 import com.example.demo.models.ServicioMedico;
 import com.example.demo.models.lineas.LineaDescargo;
@@ -16,6 +17,8 @@ import com.example.demo.repositories.LineaDescargoRepository;
 import com.example.demo.repositories.ProductoRepository;
 import com.example.demo.repositories.ServicioMedicoRepository;
 
+import com.example.demo.repositories.PacienteRepository;
+
 @Service
 public class LineDocTransaccionService {
 
@@ -23,16 +26,19 @@ public class LineDocTransaccionService {
     private final ServicioMedicoRepository servicioRepository;
     private final ProductoRepository productoRepository;
     private final DescargoRepository descargoRepository;
+    private final PacienteRepository pacienteRepository;
 
     public LineDocTransaccionService(
             LineaDescargoRepository lineaDescargoRepository,
             ServicioMedicoRepository servicioRepository,
             ProductoRepository productoRepository,
-            DescargoRepository descargoRepository) {
+            DescargoRepository descargoRepository,
+            PacienteRepository pacienteRepository) {
         this.lineaDescargoRepository = lineaDescargoRepository;
         this.servicioRepository = servicioRepository;
         this.productoRepository = productoRepository;
         this.descargoRepository = descargoRepository;
+        this.pacienteRepository = pacienteRepository;
     }
 
     // ✅ Guardar UNA sola línea de descargo desde DTO
@@ -68,6 +74,9 @@ public class LineDocTransaccionService {
         descargo.setMotivo(dto.getMotivo());
         descargo.setResponsable(dto.getResponsable());
         descargo.setEstado(dto.getEstado());
+        Paciente paciente = pacienteRepository.findById(dto.getPacienteId())
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        descargo.setPaciente(paciente);
 
         List<LineaDescargo> lineas = new ArrayList<>();
 

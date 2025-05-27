@@ -2,7 +2,6 @@ package com.example.demo.controllers;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.models.Descargo;
 import com.example.demo.services.DescargoService;
+import com.DTO.DescargoRequestDTO;
 
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -22,6 +22,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class DescargoController {
 
     private final DescargoService descargoService;
+
+    @PostMapping("/lineas/descargo")
+    public ResponseEntity<Descargo> crearDesdeDTO(@RequestBody DescargoRequestDTO dto) {
+        Descargo nuevo = descargoService.crearDesdeDTO(dto);
+        return ResponseEntity.ok(nuevo);
+    }
 
     public DescargoController(DescargoService descargoService) {
         this.descargoService = descargoService;

@@ -1,10 +1,13 @@
 package com.example.demo.models.productos;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 import com.example.demo.models.Producto;
 
 @Entity
+@DiscriminatorValue("estadia")
+
 public class Estadia extends Producto {
 
     private String fechaInicio;

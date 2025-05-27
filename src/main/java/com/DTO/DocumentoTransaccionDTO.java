@@ -12,6 +12,7 @@ public class DocumentoTransaccionDTO {
     private String motivo;
     private String responsable;
     private EstadoDocumento estado;
+    private Integer pacienteId; // ✅ NUEVO CAMPO
     private List<LineDocTransaccionDTO> lineas = new ArrayList<>();
 
     // Getters y Setters
@@ -48,6 +49,14 @@ public class DocumentoTransaccionDTO {
         this.estado = estado;
     }
 
+    public Integer getPacienteId() {
+        return pacienteId;
+    }
+
+    public void setPacienteId(Integer pacienteId) {
+        this.pacienteId = pacienteId;
+    }
+
     public List<LineDocTransaccionDTO> getLineas() {
         return lineas;
     }
@@ -55,8 +64,6 @@ public class DocumentoTransaccionDTO {
     public void setLineas(List<LineDocTransaccionDTO> lineas) {
         this.lineas = lineas;
     }
-
-    // Métodos de ayuda
 
     public void addLinea(LineDocTransaccionDTO linea) {
         this.lineas.add(linea);

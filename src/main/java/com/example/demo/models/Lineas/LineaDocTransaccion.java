@@ -13,11 +13,13 @@ public abstract class LineaDocTransaccion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    
     @ManyToOne
+    @JoinColumn(name = "servicio_id")
     private ServicioMedico servicio;
 
     @ManyToOne
+    @JoinColumn(name = "producto_id")
     private Producto producto;
 
     private Integer cantidad;

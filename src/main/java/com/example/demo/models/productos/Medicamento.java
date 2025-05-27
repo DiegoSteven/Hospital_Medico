@@ -2,11 +2,13 @@ package com.example.demo.models.productos;
 
 import java.time.LocalDate;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 import com.example.demo.models.Producto;
 
 @Entity
+@DiscriminatorValue("medicamento")
 public class Medicamento extends Producto {
 
     private LocalDate caducidad;
