@@ -8,7 +8,9 @@ import Dashboard from "./pages/Dashboard";
 import PacientesPage from "./pages/PacientesPage";
 import Servicios from "./pages/ServiciosPage";
 import DocumentosPage from "./pages/DocumentosPage";
-import FacturasDescargosPage from "./pages/FacturasDescargosPage";
+import DescargosPage from "./pages/DescargosPage";
+import FacturasPage from "./pages/FacturasPage";
+import ProductosPage from "./pages/ProductosPage";
 
 function App() {
   return (
@@ -21,10 +23,9 @@ function App() {
             <Route path="/pacientes" element={<PacientesPage />} />
             <Route path="/servicios" element={<Servicios />} />
             <Route path="/documentos" element={<DocumentosPage />} />
-            <Route
-              path="/facturas-descargos"
-              element={<FacturasDescargosPage />}
-            />
+            <Route path="/descargos" element={<DescargosPage />} />
+            <Route path="/facturas" element={<FacturasPage />} />
+            <Route path="/productos" element={<ProductosPage />} />{" "}
           </Routes>
         </Layout>
       </Router>
