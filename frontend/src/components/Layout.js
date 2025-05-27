@@ -32,7 +32,7 @@ const menuItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
   { text: "Pacientes", icon: <PeopleIcon />, path: "/pacientes" },
   { text: "Servicios", icon: <MedicalServicesIcon />, path: "/servicios" },
-  { text: "Documentos", icon: <DescriptionIcon />, path: "/documentos" },
+  //{ text: "Documentos", icon: <DescriptionIcon />, path: "/documentos" },
   { text: "Descargos", icon: <ImportExportIcon />, path: "/descargos" },
   { text: "Facturas", icon: <ReceiptIcon />, path: "/facturas" },
   { text: "Productos", icon: <StorefrontIcon />, path: "/productos" }, // ✅ nuevo

@@ -46,38 +46,49 @@ const Dashboard = () => {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [pacientes, servicios, documentos] = await Promise.all([
+      setError(null);
+
+      // Cargar datos en paralelo
+      const [pacientesRes, serviciosRes, documentosRes] = await Promise.all([
         pacienteService.getAll(),
         servicioService.getAll(),
         documentoService.getAll(),
       ]);
 
-      const pacientesData = pacientes;
-      const serviciosData = servicios;
-      const documentosData = documentos;
+      // Validar que las respuestas sean arrays
+      const pacientes = Array.isArray(pacientesRes) ? pacientesRes : [];
+      const servicios = Array.isArray(serviciosRes) ? serviciosRes : [];
+      const documentos = Array.isArray(documentosRes) ? documentosRes : [];
 
       // Calcular total facturado
-      const totalFacturado = documentosData.reduce(
-        (sum, doc) => sum + (doc.valor_total || 0),
+      const totalFacturado = documentos.reduce(
+        (sum, doc) => sum + (parseFloat(doc.valor_total) || 0),
         0
       );
 
+      // Actualizar estadísticas
       setStats({
-        totalPacientes: pacientesData.length,
-        totalServicios: serviciosData.length,
-        totalDocumentos: documentosData.length,
+        totalPacientes: pacientes.length,
+        totalServicios: servicios.length,
+        totalDocumentos: documentos.length,
         totalFacturado,
       });
 
       // Obtener pacientes recientes (últimos 5)
-      setRecentPacientes(pacientesData.slice(-5).reverse());
+      const pacientesRecientes = [...pacientes]
+        .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0))
+        .slice(0, 5);
+      setRecentPacientes(pacientesRecientes);
 
       // Obtener documentos recientes (últimos 5)
-      setRecentDocumentos(documentosData.slice(-5).reverse());
-      setError(null);
+      const documentosRecientes = [...documentos]
+        .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0))
+        .slice(0, 5);
+      setRecentDocumentos(documentosRecientes);
+
     } catch (err) {
-      setError("Error al cargar los datos del dashboard");
-      console.error(err);
+      console.error('Error al cargar datos:', err);
+      setError("Error al cargar los datos del dashboard. Por favor, intente nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -148,62 +159,74 @@ const Dashboard = () => {
 
         {/* Lista de pacientes recientes */}
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2 }}>
+          <Paper sx={{ p: 2, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Pacientes Recientes
             </Typography>
             <List>
-              {recentPacientes.map((paciente, index) => (
-                <React.Fragment key={paciente.id}>
-                  <ListItem>
-                    <ListItemAvatar>
-                      <Avatar>
-                        <PeopleIcon />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={paciente.nombre}
-                      secondary={`nombre: ${paciente.correo}`}
-                    />
-                  </ListItem>
-                  {index < recentPacientes.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
+              {recentPacientes.length > 0 ? (
+                recentPacientes.map((paciente, index) => (
+                  <React.Fragment key={paciente.id}>
+                    <ListItem>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <PeopleIcon />
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={paciente.nombre || 'Sin nombre'}
+                        secondary={paciente.correo || 'Sin correo'}
+                      />
+                    </ListItem>
+                    {index < recentPacientes.length - 1 && <Divider />}
+                  </React.Fragment>
+                ))
+              ) : (
+                <ListItem>
+                  <ListItemText primary="No hay pacientes recientes" />
+                </ListItem>
+              )}
             </List>
           </Paper>
         </Grid>
 
         {/* Lista de documentos recientes */}
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2 }}>
+          <Paper sx={{ p: 2, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Documentos Recientes
             </Typography>
             <List>
-              {recentDocumentos.map((documento, index) => (
-                <React.Fragment key={documento.id}>
-                  <ListItem>
-                    <ListItemAvatar>
-                      <Avatar>
-                        <DescriptionIcon />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={`Documento #${documento.numero}`}
-                      secondary={`Total: ${documento.valor_total?.toLocaleString(
-                        "es-ES",
-                        {
-                          style: "currency",
-                          currency: "EUR",
-                        }
-                      )} - ${new Date(documento.fecha).toLocaleDateString(
-                        "es-ES"
-                      )}`}
-                    />
-                  </ListItem>
-                  {index < recentDocumentos.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
+              {recentDocumentos.length > 0 ? (
+                recentDocumentos.map((documento, index) => (
+                  <React.Fragment key={documento.id}>
+                    <ListItem>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <DescriptionIcon />
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={`Documento #${documento.numero || documento.id}`}
+                        secondary={`Total: ${(documento.valor_total || 0).toLocaleString(
+                          "es-ES",
+                          {
+                            style: "currency",
+                            currency: "EUR",
+                          }
+                        )} - ${new Date(documento.fecha || Date.now()).toLocaleDateString(
+                          "es-ES"
+                        )}`}
+                      />
+                    </ListItem>
+                    {index < recentDocumentos.length - 1 && <Divider />}
+                  </React.Fragment>
+                ))
+              ) : (
+                <ListItem>
+                  <ListItemText primary="No hay documentos recientes" />
+                </ListItem>
+              )}
             </List>
           </Paper>
         </Grid>
