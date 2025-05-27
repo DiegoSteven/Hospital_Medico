@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -12,16 +12,20 @@ import {
   Divider,
   CircularProgress,
   Container,
-  Alert
-} from '@mui/material';
+  Alert,
+} from "@mui/material";
 import {
   People as PeopleIcon,
   MedicalServices as MedicalServicesIcon,
   Description as DescriptionIcon,
   Money as MoneyIcon,
-} from '@mui/icons-material';
-import { pacienteService, servicioService, documentoService } from '../services/api';
-import StatCard from '../components/StatCard';
+} from "@mui/icons-material";
+import {
+  pacienteService,
+  servicioService,
+  documentoService,
+} from "../services/api";
+import StatCard from "../components/StatCard";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -45,12 +49,12 @@ const Dashboard = () => {
       const [pacientes, servicios, documentos] = await Promise.all([
         pacienteService.getAll(),
         servicioService.getAll(),
-        documentoService.getAll()
+        documentoService.getAll(),
       ]);
 
-      const pacientesData = pacientes.data;
-      const serviciosData = servicios.data;
-      const documentosData = documentos.data;
+      const pacientesData = pacientes;
+      const serviciosData = servicios;
+      const documentosData = documentos;
 
       // Calcular total facturado
       const totalFacturado = documentosData.reduce(
@@ -72,7 +76,7 @@ const Dashboard = () => {
       setRecentDocumentos(documentosData.slice(-5).reverse());
       setError(null);
     } catch (err) {
-      setError('Error al cargar los datos del dashboard');
+      setError("Error al cargar los datos del dashboard");
       console.error(err);
     } finally {
       setLoading(false);
@@ -81,7 +85,12 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -128,9 +137,9 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
             title="Total Facturado"
-            value={stats.totalFacturado.toLocaleString('es-ES', {
-              style: 'currency',
-              currency: 'EUR',
+            value={stats.totalFacturado.toLocaleString("es-ES", {
+              style: "currency",
+              currency: "EUR",
             })}
             icon={<MoneyIcon />}
             color="warning.main"
@@ -154,7 +163,7 @@ const Dashboard = () => {
                     </ListItemAvatar>
                     <ListItemText
                       primary={paciente.nombre}
-                      secondary={`DNI: ${paciente.dni}`}
+                      secondary={`nombre: ${paciente.correo}`}
                     />
                   </ListItem>
                   {index < recentPacientes.length - 1 && <Divider />}
@@ -181,10 +190,15 @@ const Dashboard = () => {
                     </ListItemAvatar>
                     <ListItemText
                       primary={`Documento #${documento.numero}`}
-                      secondary={`Total: ${documento.valor_total?.toLocaleString('es-ES', {
-                        style: 'currency',
-                        currency: 'EUR',
-                      })}`}
+                      secondary={`Total: ${documento.valor_total?.toLocaleString(
+                        "es-ES",
+                        {
+                          style: "currency",
+                          currency: "EUR",
+                        }
+                      )} - ${new Date(documento.fecha).toLocaleDateString(
+                        "es-ES"
+                      )}`}
                     />
                   </ListItem>
                   {index < recentDocumentos.length - 1 && <Divider />}
@@ -198,4 +212,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
