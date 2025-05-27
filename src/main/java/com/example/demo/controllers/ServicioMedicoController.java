@@ -1,21 +1,15 @@
 package com.example.demo.controllers;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.models.ServicioMedico;
 import com.example.demo.services.ServicioMedicoService;
 
-import org.springframework.web.bind.annotation.RequestBody;
-
 @RestController
 @RequestMapping("/api/servicios")
+@CrossOrigin(origins = "*") // útil para pruebas locales con frontend
 public class ServicioMedicoController {
 
     @Autowired
@@ -33,8 +27,17 @@ public class ServicioMedicoController {
 
     @GetMapping("/{id}")
     public ServicioMedico obtener(@PathVariable Integer id) {
-        return service.obtenerPorId(id);
+        return service.buscarPorId(id);
     }
 
+    @PutMapping("/{id}")
+    public ServicioMedico actualizar(@PathVariable Integer id, @RequestBody ServicioMedico servicio) {
+        servicio.setId(id);
+        return service.guardar(servicio);
+    }
 
+    @DeleteMapping("/{id}")
+    public void eliminar(@PathVariable Integer id) {
+        service.eliminar(id);
+    }
 }
