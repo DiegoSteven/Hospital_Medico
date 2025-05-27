@@ -27,12 +27,6 @@ public class DescargoController {
         this.descargoService = descargoService;
     }
 
-    @PostMapping
-    public ResponseEntity<Descargo> crearDescargo(@RequestBody Descargo descargo) {
-        Descargo nuevo = descargoService.guardarDescargo(descargo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
-    }
-
     @GetMapping
     public ResponseEntity<List<Descargo>> obtenerTodos() {
         return ResponseEntity.ok(descargoService.obtenerTodos());

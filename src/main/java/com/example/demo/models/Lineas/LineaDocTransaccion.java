@@ -8,7 +8,7 @@ import com.example.demo.models.Producto;
 import com.example.demo.models.ServicioMedico;
 
 @MappedSuperclass
-public class LineDocTransaccion {
+public abstract class LineaDocTransaccion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,19 +22,16 @@ public class LineDocTransaccion {
 
     private Integer cantidad;
 
-    // Método robusto para calcular subtotal incluso si producto o servicio son null
     public BigDecimal getSubtotal() {
-        BigDecimal total = BigDecimal.ZERO;
-
         if (producto != null && producto.getPrecio() != null) {
-            total = total.add(producto.getPrecio().multiply(BigDecimal.valueOf(cantidad != null ? cantidad : 0)));
+            return producto.getPrecio().multiply(BigDecimal.valueOf(cantidad != null ? cantidad : 0));
         }
 
         if (servicio != null && servicio.getCosto() != null) {
-            total = total.add(servicio.getCosto());
+            return servicio.getCosto();
         }
 
-        return total;
+        return BigDecimal.ZERO;
     }
 
     public Integer getId() {

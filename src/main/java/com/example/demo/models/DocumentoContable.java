@@ -10,9 +10,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import com.example.demo.models.estados.EstadoDocumento;
-import com.example.demo.models.lineas.LineDocTransaccion;
-
-import java.util.List;
 
 @Entity
 public class DocumentoContable {
@@ -26,9 +23,10 @@ public class DocumentoContable {
     @Enumerated(EnumType.STRING)
     private EstadoDocumento estado;
 
-    public DocumentoContable() {}
+    public DocumentoContable() {
+    }
 
-    public DocumentoContable(Long id, LocalDate fecha, EstadoDocumento estado, List<LineDocTransaccion> lineas) {
+    public DocumentoContable(Long id, LocalDate fecha, EstadoDocumento estado) {
         this.id = id;
         this.fecha = fecha;
         this.estado = estado;
@@ -57,5 +55,4 @@ public class DocumentoContable {
     public void setEstado(EstadoDocumento estado) {
         this.estado = estado;
     }
-
 }

@@ -2,13 +2,17 @@ package com.example.demo.controllers;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.DTO.DocumentoTransaccionDTO;
 import com.DTO.LineDocTransaccionDTO;
 import com.example.demo.models.Descargo;
-import com.example.demo.models.lineas.LineDocTransaccion;
+import com.example.demo.models.lineas.LineaDescargo;
 import com.example.demo.services.LineDocTransaccionService;
 
 @RestController
@@ -18,27 +22,30 @@ public class LineDocTransaccionController {
     @Autowired
     private LineDocTransaccionService service;
 
-    // Crear una sola línea suelta
+    // ✅ Crear una sola línea de descargo desde DTO
     @PostMapping
-    public LineDocTransaccion crear(@RequestBody LineDocTransaccionDTO dto) {
-        return service.guardarDesdeDTO(dto);
+    public ResponseEntity<LineaDescargo> crearLinea(@RequestBody @Valid LineDocTransaccionDTO dto) {
+        LineaDescargo linea = service.guardarDesdeDTO(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(linea);
     }
 
-    // Crear un Descargo con líneas desde DTO
+    // ✅ Crear un Descargo completo con sus líneas
     @PostMapping("/descargo")
-    public Descargo crearDescargo(@RequestBody DocumentoTransaccionDTO dto) {
-        return service.guardarDescargoDesdeDTO(dto);
+    public ResponseEntity<Descargo> crearDescargo(@RequestBody @Valid DocumentoTransaccionDTO dto) {
+        Descargo nuevo = service.guardarDescargoDesdeDTO(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
-    // Listar líneas
+    // ✅ Listar todas las líneas de descargo
     @GetMapping
-    public List<LineDocTransaccion> listar() {
-        return service.listar();
+    public ResponseEntity<List<LineaDescargo>> listar() {
+        return ResponseEntity.ok(service.listar());
     }
 
-    // Obtener una línea por ID
+    // ✅ Obtener una línea específica por ID
     @GetMapping("/{id}")
-    public LineDocTransaccion obtener(@PathVariable Integer id) {
-        return service.obtenerPorId(id);
+    public ResponseEntity<LineaDescargo> obtener(@PathVariable Integer id) {
+        LineaDescargo linea = service.obtenerPorId(id);
+        return ResponseEntity.ok(linea);
     }
 }

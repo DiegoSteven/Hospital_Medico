@@ -7,7 +7,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.example.demo.models.estados.EstadoDocumento;
-import com.example.demo.models.lineas.LineDocTransaccion;
 import com.example.demo.models.lineas.LineaFactura;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -22,8 +21,8 @@ public class Factura extends DocumentoContable {
         super();
     }
 
-    public Factura(Long id, LocalDate fecha, EstadoDocumento estado, List<LineDocTransaccion> lineas) {
-        super(id, fecha, estado, lineas);
+    public Factura(Long id, LocalDate fecha, EstadoDocumento estado) {
+        super(id, fecha, estado);
     }
 
     @OneToOne
@@ -31,7 +30,7 @@ public class Factura extends DocumentoContable {
     @JsonManagedReference
     private Descargo descargo;
 
-    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LineaFactura> lineasFactura;
 
     public Descargo getDescargo() {
@@ -51,9 +50,9 @@ public class Factura extends DocumentoContable {
     }
 
     public BigDecimal getTotal() {
-        return lineasFactura.stream()
-                .map(LineaFactura::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return lineasFactura == null ? BigDecimal.ZERO
+                : lineasFactura.stream()
+                        .map(LineaFactura::getSubtotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-
 }

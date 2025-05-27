@@ -3,16 +3,14 @@ package com.example.demo.models;
 import javax.persistence.*;
 
 import com.example.demo.models.estados.EstadoDocumento;
-import com.example.demo.models.lineas.DocumentoTransaccion;
 import com.example.demo.models.lineas.LineaDescargo;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-public class Descargo extends DocumentoTransaccion {
+public class Descargo extends DocumentoContable {
 
     @Column(nullable = false)
     private String motivo;

@@ -10,39 +10,33 @@ import com.DTO.LineDocTransaccionDTO;
 import com.example.demo.models.Descargo;
 import com.example.demo.models.Producto;
 import com.example.demo.models.ServicioMedico;
-import com.example.demo.models.lineas.DocumentoTransaccion;
-import com.example.demo.models.lineas.LineDocTransaccion;
 import com.example.demo.models.lineas.LineaDescargo;
 import com.example.demo.repositories.DescargoRepository;
-import com.example.demo.repositories.DocumentoTransaccionRepository;
-import com.example.demo.repositories.LineDocTransaccionRepository;
+import com.example.demo.repositories.LineaDescargoRepository;
 import com.example.demo.repositories.ProductoRepository;
 import com.example.demo.repositories.ServicioMedicoRepository;
 
 @Service
 public class LineDocTransaccionService {
 
-    private final LineDocTransaccionRepository lineaRepository;
+    private final LineaDescargoRepository lineaDescargoRepository;
     private final ServicioMedicoRepository servicioRepository;
     private final ProductoRepository productoRepository;
-    private final DocumentoTransaccionRepository documentoRepository;
     private final DescargoRepository descargoRepository;
 
     public LineDocTransaccionService(
-            LineDocTransaccionRepository lineaRepository,
+            LineaDescargoRepository lineaDescargoRepository,
             ServicioMedicoRepository servicioRepository,
             ProductoRepository productoRepository,
-            DocumentoTransaccionRepository documentoRepository,
             DescargoRepository descargoRepository) {
-        this.lineaRepository = lineaRepository;
+        this.lineaDescargoRepository = lineaDescargoRepository;
         this.servicioRepository = servicioRepository;
         this.productoRepository = productoRepository;
-        this.documentoRepository = documentoRepository;
         this.descargoRepository = descargoRepository;
     }
 
-    // ✅ Guardar UNA sola línea desde DTO
-    public LineDocTransaccion guardarDesdeDTO(LineDocTransaccionDTO dto) {
+    // ✅ Guardar UNA sola línea de descargo desde DTO
+    public LineaDescargo guardarDesdeDTO(LineDocTransaccionDTO dto) {
         ServicioMedico servicio = null;
         if (dto.getServicioId() != null) {
             servicio = servicioRepository.findById(dto.getServicioId())
@@ -55,14 +49,19 @@ public class LineDocTransaccionService {
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
         }
 
-        LineDocTransaccion linea = new LineDocTransaccion();
+        if ((producto != null && servicio != null) || (producto == null && servicio == null)) {
+            throw new RuntimeException("Debe especificarse solo un producto o solo un servicio.");
+        }
+
+        LineaDescargo linea = new LineaDescargo();
         linea.setServicio(servicio);
         linea.setProducto(producto);
-        linea.setCantidad(dto.getCantidad());
+        linea.setCantidad(dto.getCantidad() != null ? dto.getCantidad() : 1);
 
-        return lineaRepository.save(linea);
+        return lineaDescargoRepository.save(linea);
     }
 
+    // ✅ Guardar descargo completo desde DTO
     public Descargo guardarDescargoDesdeDTO(DocumentoTransaccionDTO dto) {
         Descargo descargo = new Descargo();
         descargo.setFecha(dto.getFecha());
@@ -73,8 +72,9 @@ public class LineDocTransaccionService {
         List<LineaDescargo> lineas = new ArrayList<>();
 
         for (LineDocTransaccionDTO lineaDto : dto.getLineas()) {
-            if (lineaDto.getProductoId() == null && lineaDto.getServicioId() == null) {
-                throw new RuntimeException("Cada línea debe contener al menos productoId o servicioId");
+            if ((lineaDto.getProductoId() != null && lineaDto.getServicioId() != null)
+                    || (lineaDto.getProductoId() == null && lineaDto.getServicioId() == null)) {
+                throw new RuntimeException("Cada línea debe contener solo productoId o solo servicioId");
             }
 
             LineaDescargo linea = new LineaDescargo();
@@ -103,17 +103,14 @@ public class LineDocTransaccionService {
         return descargoRepository.save(descargo);
     }
 
-    // Métodos auxiliares
-    public List<LineDocTransaccion> listar() {
-        return lineaRepository.findAll();
+    // ✅ Métodos auxiliares
+
+    public List<LineaDescargo> listar() {
+        return lineaDescargoRepository.findAll();
     }
 
-    public List<DocumentoTransaccion> listarDocumentos() {
-        return documentoRepository.findAll();
-    }
-
-    public LineDocTransaccion obtenerPorId(Integer id) {
-        return lineaRepository.findById(id)
+    public LineaDescargo obtenerPorId(Integer id) {
+        return lineaDescargoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Línea no encontrada"));
     }
 }

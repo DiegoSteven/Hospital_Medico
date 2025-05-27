@@ -8,14 +8,13 @@ import com.example.demo.models.Descargo;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-public class LineaDescargo extends LineDocTransaccion {
+public class LineaDescargo extends LineaDocTransaccion {
 
     @ManyToOne
     @JoinColumn(name = "descargo_id")
     @JsonBackReference
     private Descargo descargo;
 
-    // getters y setters
     public Descargo getDescargo() {
         return descargo;
     }
@@ -23,5 +22,4 @@ public class LineaDescargo extends LineDocTransaccion {
     public void setDescargo(Descargo descargo) {
         this.descargo = descargo;
     }
-
 }

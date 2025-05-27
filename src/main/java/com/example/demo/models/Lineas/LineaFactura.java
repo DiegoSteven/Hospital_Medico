@@ -10,7 +10,7 @@ import com.example.demo.models.Factura;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-public class LineaFactura extends LineDocTransaccion {
+public class LineaFactura extends LineaDocTransaccion {
 
     @ManyToOne
     @JoinColumn(name = "factura_id")
@@ -34,5 +34,4 @@ public class LineaFactura extends LineDocTransaccion {
     public void setPrecioUnitario(BigDecimal precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
-
 }
