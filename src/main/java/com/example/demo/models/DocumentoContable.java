@@ -2,17 +2,13 @@ package com.example.demo.models;
 
 import java.time.LocalDate;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import com.example.demo.models.estados.EstadoDocumento;
 
 @Entity
-public class DocumentoContable {
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class DocumentoContable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +19,11 @@ public class DocumentoContable {
     @Enumerated(EnumType.STRING)
     private EstadoDocumento estado;
 
-    public DocumentoContable() {
-    }
+    @ManyToOne
+    @JoinColumn(name = "paciente_id")
+    private Paciente paciente;
+
+    public DocumentoContable() {}
 
     public DocumentoContable(Long id, LocalDate fecha, EstadoDocumento estado) {
         this.id = id;
@@ -54,5 +53,13 @@ public class DocumentoContable {
 
     public void setEstado(EstadoDocumento estado) {
         this.estado = estado;
+    }
+
+    public Paciente getPaciente() {
+        return paciente;
+    }
+
+    public void setPaciente(Paciente paciente) {
+        this.paciente = paciente;
     }
 }
