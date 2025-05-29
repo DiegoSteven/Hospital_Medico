@@ -19,11 +19,14 @@ import {
   MedicalServices as MedicalServicesIcon,
   Description as DescriptionIcon,
   Money as MoneyIcon,
+  Receipt as ReceiptIcon,
+  ImportExport as ImportExportIcon,
 } from "@mui/icons-material";
 import {
   pacienteService,
   servicioService,
-  documentoService,
+  facturaService,
+  descargoService,
 } from "../services/api";
 import StatCard from "../components/StatCard";
 
@@ -31,11 +34,12 @@ const Dashboard = () => {
   const [stats, setStats] = useState({
     totalPacientes: 0,
     totalServicios: 0,
-    totalDocumentos: 0,
+    totalFacturas: 0,
+    totalDescargos: 0,
     totalFacturado: 0,
   });
   const [recentPacientes, setRecentPacientes] = useState([]);
-  const [recentDocumentos, setRecentDocumentos] = useState([]);
+  const [recentFacturas, setRecentFacturas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -49,20 +53,22 @@ const Dashboard = () => {
       setError(null);
 
       // Cargar datos en paralelo
-      const [pacientesRes, serviciosRes, documentosRes] = await Promise.all([
+      const [pacientesRes, serviciosRes, facturasRes, descargosRes] = await Promise.all([
         pacienteService.getAll(),
         servicioService.getAll(),
-        documentoService.getAll(),
+        facturaService.getAll(),
+        descargoService.getAll(),
       ]);
 
       // Validar que las respuestas sean arrays
       const pacientes = Array.isArray(pacientesRes) ? pacientesRes : [];
       const servicios = Array.isArray(serviciosRes) ? serviciosRes : [];
-      const documentos = Array.isArray(documentosRes) ? documentosRes : [];
+      const facturas = Array.isArray(facturasRes) ? facturasRes : [];
+      const descargos = Array.isArray(descargosRes) ? descargosRes : [];
 
       // Calcular total facturado
-      const totalFacturado = documentos.reduce(
-        (sum, doc) => sum + (parseFloat(doc.valor_total) || 0),
+      const totalFacturado = facturas.reduce(
+        (sum, factura) => sum + (parseFloat(factura.total) || 0),
         0
       );
 
@@ -70,7 +76,8 @@ const Dashboard = () => {
       setStats({
         totalPacientes: pacientes.length,
         totalServicios: servicios.length,
-        totalDocumentos: documentos.length,
+        totalFacturas: facturas.length,
+        totalDescargos: descargos.length,
         totalFacturado,
       });
 
@@ -80,11 +87,11 @@ const Dashboard = () => {
         .slice(0, 5);
       setRecentPacientes(pacientesRecientes);
 
-      // Obtener documentos recientes (últimos 5)
-      const documentosRecientes = [...documentos]
+      // Obtener facturas recientes (últimos 5)
+      const facturasRecientes = [...facturas]
         .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0))
         .slice(0, 5);
-      setRecentDocumentos(documentosRecientes);
+      setRecentFacturas(facturasRecientes);
 
     } catch (err) {
       console.error('Error al cargar datos:', err);
@@ -139,9 +146,9 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Total Documentos"
-            value={stats.totalDocumentos}
-            icon={<DescriptionIcon />}
+            title="Total Facturas"
+            value={stats.totalFacturas}
+            icon={<ReceiptIcon />}
             color="success.main"
           />
         </Grid>
@@ -190,41 +197,39 @@ const Dashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Lista de documentos recientes */}
+        {/* Lista de facturas recientes */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
-              Documentos Recientes
+              Facturas Recientes
             </Typography>
             <List>
-              {recentDocumentos.length > 0 ? (
-                recentDocumentos.map((documento, index) => (
-                  <React.Fragment key={documento.id}>
+              {recentFacturas.length > 0 ? (
+                recentFacturas.map((factura, index) => (
+                  <React.Fragment key={factura.id}>
                     <ListItem>
                       <ListItemAvatar>
                         <Avatar>
-                          <DescriptionIcon />
+                          <ReceiptIcon />
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
-                        primary={`Documento #${documento.numero || documento.id}`}
-                        secondary={`Total: ${(documento.valor_total || 0).toLocaleString(
+                        primary={`Factura #${factura.id}`}
+                        secondary={`${factura.descargo?.paciente?.nombre || 'Sin paciente'} - ${(factura.total || 0).toLocaleString(
                           "es-ES",
                           {
                             style: "currency",
                             currency: "EUR",
                           }
-                        )} - ${new Date(documento.fecha || Date.now()).toLocaleDateString(
-                          "es-ES"
                         )}`}
                       />
                     </ListItem>
-                    {index < recentDocumentos.length - 1 && <Divider />}
+                    {index < recentFacturas.length - 1 && <Divider />}
                   </React.Fragment>
                 ))
               ) : (
                 <ListItem>
-                  <ListItemText primary="No hay documentos recientes" />
+                  <ListItemText primary="No hay facturas recientes" />
                 </ListItem>
               )}
             </List>
