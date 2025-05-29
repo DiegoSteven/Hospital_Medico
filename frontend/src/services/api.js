@@ -7,7 +7,15 @@ const API_URL = "http://localhost:8080";
 export const pacienteService = new BaseService("pacientes");
 export const servicioService = new BaseService("servicios");
 export const documentoService = new BaseService("documentos");
-export const facturaService = new BaseService("facturas");
+const baseFacturaService = new BaseService("facturas");
+export const facturaService = {
+  getAll: () => baseFacturaService.getAll(),
+  getById: (id) => baseFacturaService.getById(id),
+  create: (data) => baseFacturaService.create(data),
+  update: (id, data) => baseFacturaService.update(id, data),
+  delete: (id) => baseFacturaService.delete(id),
+  facturar: (descargoId) => axios.post(`${API_URL}/api/facturas/facturar/${descargoId}`).then(res => res.data)
+};
 export const productoService = new BaseService("productos");
 export const lineaDocTransaccionService = new BaseService("lineas");
 export const descargoService = new BaseService("descargos");

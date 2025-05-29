@@ -32,6 +32,8 @@ const FacturasPage = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const [facturasRes, descargosRes] = await Promise.all([
           facturaService.getAll(),
           descargoService.getAll()
@@ -39,8 +41,8 @@ const FacturasPage = () => {
         setFacturas(facturasRes);
         setDescargos(descargosRes.filter(d => d.estado === 'DESCARGADO'));
       } catch (err) {
+        console.error('Error al cargar datos:', err);
         setError('Error al cargar facturas o descargos');
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -65,13 +67,17 @@ const FacturasPage = () => {
       return;
     }
     try {
-      await facturaService.create({ descargo: { id: selectedDescargo.id } });
+      setLoading(true);
+      setError(null);
+      await facturaService.facturar(selectedDescargo.id);
       const nuevasFacturas = await facturaService.getAll();
       setFacturas(nuevasFacturas);
       setOpenDialog(false);
     } catch (err) {
+      console.error('Error al generar factura:', err);
       setError('Error al generar la factura');
-      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
