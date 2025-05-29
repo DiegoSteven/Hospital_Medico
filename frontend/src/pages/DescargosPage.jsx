@@ -28,6 +28,7 @@ import {
   descargoService,
   pacienteService,
   servicioService,
+  productoService,
 } from "../services/api";
 
 console.log("Métodos de descargoService:", descargoService);
@@ -36,6 +37,7 @@ const DescargosPage = () => {
   const [descargos, setDescargos] = useState([]);
   const [pacientes, setPacientes] = useState([]);
   const [servicios, setServicios] = useState([]);
+  const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -43,25 +45,28 @@ const DescargosPage = () => {
     fecha: new Date().toISOString().split("T")[0],
     motivo: "",
     responsable: "",
-    paciente: "",
+    pacienteId: "",
     lineasDescargo: [],
   });
   const [lineaActual, setLineaActual] = useState({
-    servicioId: "",
+    tipo: "servicio", // o "producto"
+    id: "",
     cantidad: 1,
   });
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [d, p, s] = await Promise.all([
+        const [d, p, s, prod] = await Promise.all([
           descargoService.getAll(),
           pacienteService.getAll(),
           servicioService.getAll(),
+          productoService.getAll(),
         ]);
         setDescargos(d);
         setPacientes(p);
         setServicios(s);
+        setProductos(prod);
       } catch (err) {
         setError("Error al cargar los datos");
         console.error(err);
@@ -73,21 +78,31 @@ const DescargosPage = () => {
   }, []);
 
   const handleAddLinea = () => {
-    const servicio = servicios.find((s) => s.id === lineaActual.servicioId);
-    if (!servicio || lineaActual.cantidad <= 0) return;
-    const subtotal = servicio.costo * lineaActual.cantidad;
+    if (!lineaActual.id || lineaActual.cantidad <= 0) return;
+
+    let subtotal = 0;
+    if (lineaActual.tipo === "servicio") {
+      const servicio = servicios.find((s) => s.id === lineaActual.id);
+      if (!servicio) return;
+      subtotal = servicio.costo * lineaActual.cantidad;
+    } else {
+      const producto = productos.find((p) => p.id === lineaActual.id);
+      if (!producto) return;
+      subtotal = producto.precio * lineaActual.cantidad;
+    }
+
     setFormData((prev) => ({
       ...prev,
       lineasDescargo: [
         ...prev.lineasDescargo,
         {
-          servicio: { id: servicio.id },
+          [lineaActual.tipo === "servicio" ? "servicioId" : "productoId"]: lineaActual.id,
           cantidad: lineaActual.cantidad,
           subtotal,
         },
       ],
     }));
-    setLineaActual({ servicioId: "", cantidad: 1 });
+    setLineaActual({ tipo: "servicio", id: "", cantidad: 1 });
   };
 
   const handleRemoveLinea = (index) => {
@@ -95,17 +110,16 @@ const DescargosPage = () => {
     lineas.splice(index, 1);
     setFormData({ ...formData, lineasDescargo: lineas });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const dtoPayload = {
-        pacienteId: formData.paciente,
+        fecha: formData.fecha,
+        pacienteId: formData.pacienteId,
         motivo: formData.motivo,
         responsable: formData.responsable,
-        lineas: formData.lineasDescargo.map((linea) => ({
-          servicioId: linea.servicio.id,
-          cantidad: linea.cantidad,
-        })),
+        lineasDescargo: formData.lineasDescargo,
       };
 
       await descargoService.createFromDTO(dtoPayload);
@@ -173,9 +187,9 @@ const DescargosPage = () => {
             <FormControl fullWidth margin="normal">
               <InputLabel>Paciente</InputLabel>
               <Select
-                value={formData.paciente}
+                value={formData.pacienteId}
                 onChange={(e) =>
-                  setFormData({ ...formData, paciente: e.target.value })
+                  setFormData({ ...formData, pacienteId: e.target.value })
                 }
                 required
               >
@@ -208,27 +222,49 @@ const DescargosPage = () => {
             />
 
             <Box mt={3}>
-              <Typography variant="h6">Servicios</Typography>
+              <Typography variant="h6">Servicios y Productos</Typography>
               <Box display="flex" gap={2} alignItems="center" my={2}>
+                <FormControl sx={{ minWidth: 120 }}>
+                  <InputLabel>Tipo</InputLabel>
+                  <Select
+                    value={lineaActual.tipo}
+                    onChange={(e) =>
+                      setLineaActual({
+                        ...lineaActual,
+                        tipo: e.target.value,
+                        id: "",
+                      })
+                    }
+                  >
+                    <MenuItem value="servicio">Servicio</MenuItem>
+                    <MenuItem value="producto">Producto</MenuItem>
+                  </Select>
+                </FormControl>
                 <Select
-                  value={lineaActual.servicioId}
+                  value={lineaActual.id}
                   onChange={(e) =>
                     setLineaActual({
                       ...lineaActual,
-                      servicioId: e.target.value,
+                      id: e.target.value,
                     })
                   }
                   displayEmpty
                   fullWidth
                 >
                   <MenuItem value="" disabled>
-                    Seleccione un servicio
+                    Seleccione un {lineaActual.tipo}
                   </MenuItem>
-                  {servicios.map((s) => (
-                    <MenuItem key={s.id} value={s.id}>
-                      {s.descripcion}
-                    </MenuItem>
-                  ))}
+                  {lineaActual.tipo === "servicio"
+                    ? servicios.map((s) => (
+                        <MenuItem key={s.id} value={s.id}>
+                          {s.descripcion} - ${s.costo}
+                        </MenuItem>
+                      ))
+                    : productos.map((p) => (
+                        <MenuItem key={p.id} value={p.id}>
+                          {p.descripcion} - ${p.precio}
+                        </MenuItem>
+                      ))}
                 </Select>
                 <TextField
                   type="number"
@@ -249,7 +285,8 @@ const DescargosPage = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Servicio</TableCell>
+                    <TableCell>Tipo</TableCell>
+                    <TableCell>Descripción</TableCell>
                     <TableCell>Cantidad</TableCell>
                     <TableCell>Subtotal</TableCell>
                     <TableCell>Acciones</TableCell>
@@ -257,12 +294,15 @@ const DescargosPage = () => {
                 </TableHead>
                 <TableBody>
                   {formData.lineasDescargo.map((linea, index) => {
-                    const servicio = servicios.find(
-                      (s) => s.id === linea.servicio.id
-                    );
+                    const item = linea.servicioId
+                      ? servicios.find((s) => s.id === linea.servicioId)
+                      : productos.find((p) => p.id === linea.productoId);
                     return (
                       <TableRow key={index}>
-                        <TableCell>{servicio?.descripcion}</TableCell>
+                        <TableCell>
+                          {linea.servicioId ? "Servicio" : "Producto"}
+                        </TableCell>
+                        <TableCell>{item?.descripcion}</TableCell>
                         <TableCell>{linea.cantidad}</TableCell>
                         <TableCell>${linea.subtotal}</TableCell>
                         <TableCell>
