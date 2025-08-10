@@ -14,7 +14,7 @@ import com.example.demo.models.Paciente;
 import com.example.demo.models.Producto;
 import com.example.demo.models.ServicioMedico;
 import com.example.demo.models.estados.EstadoDocumento;
-import com.example.demo.models.lineas.LineaDescargo;
+import com.example.demo.models.Lineas.LineaDescargo;
 import com.example.demo.repositories.DescargoRepository;
 
 @Service

@@ -7,7 +7,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.example.demo.models.estados.EstadoDocumento;
-import com.example.demo.models.lineas.LineaFactura;
+import com.example.demo.models.Lineas.LineaFactura;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.math.BigDecimal;

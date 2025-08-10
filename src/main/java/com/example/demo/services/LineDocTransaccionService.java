@@ -11,7 +11,7 @@ import com.example.demo.models.Descargo;
 import com.example.demo.models.Paciente;
 import com.example.demo.models.Producto;
 import com.example.demo.models.ServicioMedico;
-import com.example.demo.models.lineas.LineaDescargo;
+import com.example.demo.models.Lineas.LineaDescargo;
 import com.example.demo.repositories.DescargoRepository;
 import com.example.demo.repositories.LineaDescargoRepository;
 import com.example.demo.repositories.ProductoRepository;

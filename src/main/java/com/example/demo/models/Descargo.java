@@ -3,7 +3,7 @@ package com.example.demo.models;
 import javax.persistence.*;
 
 import com.example.demo.models.estados.EstadoDocumento;
-import com.example.demo.models.lineas.LineaDescargo;
+import com.example.demo.models.Lineas.LineaDescargo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;

@@ -1,4 +1,4 @@
-package com.example.demo.models.lineas;
+package com.example.demo.models.Lineas;
 
 import java.math.BigDecimal;
 

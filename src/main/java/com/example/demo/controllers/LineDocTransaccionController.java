@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import com.DTO.DocumentoTransaccionDTO;
 import com.DTO.LineDocTransaccionDTO;
 import com.example.demo.models.Descargo;
-import com.example.demo.models.lineas.LineaDescargo;
+import com.example.demo.models.Lineas.LineaDescargo;
 import com.example.demo.services.LineDocTransaccionService;
 
 @RestController

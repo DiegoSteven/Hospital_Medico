@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.models.Descargo;
 import com.example.demo.models.Factura;
 import com.example.demo.models.estados.EstadoDocumento;
-import com.example.demo.models.lineas.LineaFactura;
+import com.example.demo.models.Lineas.LineaFactura;
 import com.example.demo.repositories.DescargoRepository;
 import com.example.demo.repositories.FacturaRepository;
 
